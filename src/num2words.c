@@ -8,7 +8,7 @@ static const char* const ONES[] = {
   "tri",
   "cetiri",
   "pet",
-  "set",
+  "sest",
   "sedam",
   "osam",
   "devet"
@@ -40,14 +40,15 @@ static const char* const TENS[] = {
   "devetdeset"
 };
 
-static const char* STR_OH_CLOCK = "sati";
+static const char* STR_OH_CLOCK = "sat";
+static const char* STR_OH_MCLOCK = "sata";
+static const char* STR_OH_PCLOCK = "sati";
 static const char* STR_NOON = "podne";
 static const char* STR_MIDNIGHT = "ponoc";
 static const char* STR_QUARTER = "cetvrt";
 static const char* STR_TO = "do";
-static const char* STR_PAST = "poslije";
+static const char* STR_AND = "i";
 static const char* STR_HALF = "pola";
-static const char* STR_AFTER = "poslije";
 
 static size_t append_number(char* words, int num) {
   int tens_val = num / 10 % 10;
@@ -100,10 +101,12 @@ void fuzzy_time_to_words(int hours, int minutes, char* words, size_t length) {
 
   if (fuzzy_minutes != 0 && (fuzzy_minutes >= 10 || fuzzy_minutes == 5 || fuzzy_hours == 0 || fuzzy_hours == 12)) {
     if (fuzzy_minutes == 15) {
+      remaining -= append_number(words, fuzzy_hours % 12);
+
+      remaining -= append_string(words, remaining, " ");
+      remaining -= append_string(words, remaining, STR_AND);
+      remaining -= append_string(words, remaining, " ");
       remaining -= append_string(words, remaining, STR_QUARTER);
-      remaining -= append_string(words, remaining, " ");
-      remaining -= append_string(words, remaining, STR_AFTER);
-      remaining -= append_string(words, remaining, " ");
     } else if (fuzzy_minutes == 45) {
       remaining -= append_string(words, remaining, STR_QUARTER);
       remaining -= append_string(words, remaining, " ");
@@ -111,16 +114,20 @@ void fuzzy_time_to_words(int hours, int minutes, char* words, size_t length) {
       remaining -= append_string(words, remaining, " ");
 
       fuzzy_hours = (fuzzy_hours + 1) % 24;
+      remaining -= append_number(words, fuzzy_hours % 12);
     } else if (fuzzy_minutes == 30) {
       remaining -= append_string(words, remaining, STR_HALF);
       remaining -= append_string(words, remaining, " ");
-      remaining -= append_string(words, remaining, STR_PAST);
-      remaining -= append_string(words, remaining, " ");
+
+      fuzzy_hours = (fuzzy_hours + 1) % 24;
+      remaining -= append_number(words, fuzzy_hours % 12);
     } else if (fuzzy_minutes < 30) {
+      remaining -= append_number(words, fuzzy_hours % 12);
+
+      remaining -= append_string(words, remaining, " ");
+      remaining -= append_string(words, remaining, STR_AND);
+      remaining -= append_string(words, remaining, " ");
       remaining -= append_number(words, fuzzy_minutes);
-      remaining -= append_string(words, remaining, " ");
-      remaining -= append_string(words, remaining, STR_AFTER);
-      remaining -= append_string(words, remaining, " ");
     } else {
       remaining -= append_number(words, 60 - fuzzy_minutes);
       remaining -= append_string(words, remaining, " ");
@@ -128,6 +135,7 @@ void fuzzy_time_to_words(int hours, int minutes, char* words, size_t length) {
       remaining -= append_string(words, remaining, " ");
 
       fuzzy_hours = (fuzzy_hours + 1) % 24;
+      remaining -= append_number(words, fuzzy_hours % 12);
     }
   }
 
@@ -135,12 +143,19 @@ void fuzzy_time_to_words(int hours, int minutes, char* words, size_t length) {
     remaining -= append_string(words, remaining, STR_MIDNIGHT);
   } else if (fuzzy_hours == 12) {
     remaining -= append_string(words, remaining, STR_NOON);
-  } else {
-    remaining -= append_number(words, fuzzy_hours % 12);
-  }
+  } 
 
   if (fuzzy_minutes == 0 && !(fuzzy_hours == 0 || fuzzy_hours == 12)) {
+    fuzzy_hours = fuzzy_hours % 12;
+    remaining -= append_number(words, fuzzy_hours);
     remaining -= append_string(words, remaining, " ");
-    remaining -= append_string(words, remaining, STR_OH_CLOCK);
+    if (fuzzy_hours==1) {
+       remaining -= append_string(words, remaining, STR_OH_CLOCK);
+    } else if (fuzzy_hours<5) {
+       remaining -= append_string(words, remaining, STR_OH_MCLOCK);
+    } else {
+       remaining -= append_string(words, remaining, STR_OH_PCLOCK);
+    }
+
   }
 }
