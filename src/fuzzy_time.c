@@ -7,7 +7,7 @@
 PBL_APP_INFO(MY_UUID,
              "Fuzzy Time Hr",
              "Kost/Pebble Technology",
-             1, 3, /* App version */
+             1, 5, /* App version */
              RESOURCE_ID_IMAGE_MENU_ICON,
              APP_INFO_WATCH_FACE);
 
