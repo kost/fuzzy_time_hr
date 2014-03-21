@@ -1,0 +1,22 @@
+{
+  "uuid": "08621bc9-76c0-4acb-b56f-833f119fc1bc",
+  "shortName": "Fuzzy Time Hr",
+  "longName": "Fuzzy Time Hr",
+  "companyName": "Kost/Pebble Technology",
+  "versionCode": 1,
+  "versionLabel": "1.5.0",
+  "watchapp": {
+    "watchface": false
+  },
+  "appKeys": {},
+  "resources": {
+    "media": [
+      {
+        "menuIcon": true,
+        "type": "png",
+        "name": "IMAGE_MENU_ICON",
+        "file": "images/menu_icon_fuzzy_watch.png"
+      }
+    ]
+  }
+}
