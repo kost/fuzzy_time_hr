@@ -1,6 +1,4 @@
-#include "pebble_os.h"
-#include "pebble_app.h"
-#include "pebble_fonts.h"
+#include <pebble.h>
 #include "num2words.h"
 
 #define MY_UUID { 0x08, 0x62, 0x1B, 0xC9, 0x76, 0xC0, 0x4A, 0xCB, 0xB5, 0x6F, 0x83, 0x3F, 0x11, 0x9F, 0xC1, 0xBC }
@@ -49,15 +47,8 @@ static void handle_init(AppContextRef ctx) {
 }
 
 
-void pbl_main(void *params) {
-  PebbleAppHandlers handlers = {
-    .init_handler = &handle_init,
-
-    .tick_info = {
-      .tick_handler = &handle_minute_tick,
-      .tick_units = MINUTE_UNIT
-    }
-
-  };
-  app_event_loop(params, &handlers);
+void main(void *params) {
+  handle_init();
+  app_event_loop();
+  handle_deinit();
 }
