@@ -1,53 +1,53 @@
 #include <pebble.h>
 #include "num2words.h"
 
-#define MY_UUID { 0x08, 0x62, 0x1B, 0xC9, 0x76, 0xC0, 0x4A, 0xCB, 0xB5, 0x6F, 0x83, 0x3F, 0x11, 0x9F, 0xC1, 0xBC }
-PBL_APP_INFO(MY_UUID,
-             "Fuzzy Time Hr",
-             "Kost/Pebble Technology",
-             1, 5, /* App version */
-             RESOURCE_ID_IMAGE_MENU_ICON,
-             APP_INFO_WATCH_FACE);
-
 #define BUFFER_SIZE 86
 
 static struct CommonWordsData {
-  TextLayer label;
-  Window window;
+  TextLayer *label;
+  Window *window;
   char buffer[BUFFER_SIZE];
 } s_data;
 
-static void update_time(PblTm* t) {
+static void update_time(struct tm* t) {
   fuzzy_time_to_words(t->tm_hour, t->tm_min, s_data.buffer, BUFFER_SIZE);
-  text_layer_set_text(&s_data.label, s_data.buffer);
+  text_layer_set_text(s_data.label, s_data.buffer);
 }
 
-static void handle_minute_tick(AppContextRef app_ctx, PebbleTickEvent* e) {
-  update_time(e->tick_time);
+static void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
+  update_time(tick_time);
 }
 
-static void handle_init(AppContextRef ctx) {
+static void handle_init(void) {
 
-  window_init(&s_data.window, "My Hr Fuzzy Time");
+  s_data.window=window_create(); 
   const bool animated = true;
-  window_stack_push(&s_data.window, animated);
+  window_stack_push(s_data.window, animated);
 
-  window_set_background_color(&s_data.window, GColorBlack);
+  window_set_background_color(s_data.window, GColorBlack);
   GFont font = fonts_get_system_font(FONT_KEY_DROID_SERIF_28_BOLD);
+  Layer *root_layer = window_get_root_layer(s_data.window);
+  GRect frame = layer_get_frame(root_layer);
 
-  text_layer_init(&s_data.label, GRect(0, 20, s_data.window.layer.frame.size.w, s_data.window.layer.frame.size.h - 20));
-  text_layer_set_background_color(&s_data.label, GColorBlack);
-  text_layer_set_text_color(&s_data.label, GColorWhite);
-  text_layer_set_font(&s_data.label, font);
-  layer_add_child(&s_data.window.layer, &s_data.label.layer);
+  s_data.label=text_layer_create(GRect(0, 20, frame.size.w, frame.size.h - 20));
+  text_layer_set_background_color(s_data.label, GColorBlack);
+  text_layer_set_text_color(s_data.label, GColorWhite);
+  text_layer_set_font(s_data.label, font);
+  layer_add_child(root_layer, text_layer_get_layer(s_data.label)); 
 
-  PblTm t;
-  get_time(&t);
-  update_time(&t);
+  time_t now = time(NULL);
+  struct tm *t = localtime(&now);
+  update_time(t);
+
+  tick_timer_service_subscribe(MINUTE_UNIT, &handle_minute_tick);
 }
 
+static void handle_deinit(void) {
+  text_layer_destroy(s_data.label);
+  window_destroy(s_data.window);
+}
 
-void main(void *params) {
+int main(void) {
   handle_init();
   app_event_loop();
   handle_deinit();
