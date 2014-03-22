@@ -4,9 +4,9 @@
   "longName": "Fuzzy Time Hr",
   "companyName": "Kost/Pebble Technology",
   "versionCode": 1,
-  "versionLabel": "1.9.0",
+  "versionLabel": "1.9.1",
   "watchapp": {
-    "watchface": false
+    "watchface": true
   },
   "appKeys": {},
   "resources": {
